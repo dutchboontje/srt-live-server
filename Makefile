@@ -6,7 +6,7 @@ LIB_PATH =  -L ./lib
 LIBRARY_FILE = -lpthread -lz -lsrt
 BIN_PATH = ./bin
 
-DEBUG = -g
+DEBUG = -O3
 CFLAGS += $(DEBUG)
 
 LOG_PATH = ./logs
