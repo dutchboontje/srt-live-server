@@ -87,8 +87,18 @@ int CSLSMapData::remove(char *key)
             delete array_data;
         }
     	m_map_array.erase(item);
-        return SLS_OK;
+        ret = SLS_OK;
     }
+
+    //remove sps and pps
+    std::map<std::string, ts_info *>::iterator item_ti;
+    item_ti = m_map_ts_info.find(strKey);
+    if (item_ti != m_map_ts_info.end()) {
+        sls_log(SLS_LOG_INFO, "[%p]CSLSMapData::remove, key='%s' delete sps and pps",
+                this, key);
+        m_map_ts_info.erase(item_ti);
+    }
+
     return ret;
 }
 
