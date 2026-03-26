@@ -46,6 +46,8 @@ char             domain_publisher[URL_MAX_LEN];
 int              listen;
 int              backlog;
 int              latency;
+int              pbkeylen;
+char             passphrase[URL_MAX_LEN];
 int              idle_streams_timeout;//unit s; -1: unlimited
 char             on_event_url[URL_MAX_LEN];
 char             get_passphrase_url[URL_MAX_LEN];
@@ -60,6 +62,8 @@ SLS_SET_CONF(server, string, domain_publisher,     "", 1,    URL_MAX_LEN-1),
 SLS_SET_CONF(server, int,    listen,               "listen port", 1024, 10000),
 SLS_SET_CONF(server, int,    backlog,              "how many sockets may be allowed to wait until they are accepted", 1,    1024),
 SLS_SET_CONF(server, int,    latency,              "latency.", 1, 300),
+SLS_SET_CONF(server, int,    pbkeylen,             "srt encryption key length (16/24/32)", 0, 32),
+SLS_SET_CONF(server, string, passphrase,           "srt passphrase", 1, URL_MAX_LEN-1),
 SLS_SET_CONF(server, int,    idle_streams_timeout, "players idle timeout when no publisher" , -1, 86400),
 SLS_SET_CONF(server, string, on_event_url,         "on connect/close http url", 1,    URL_MAX_LEN-1),
 SLS_SET_CONF(server, string, get_passphrase_url,   "get passphrase http url", 1,    URL_MAX_LEN-1),

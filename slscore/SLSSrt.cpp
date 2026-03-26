@@ -149,6 +149,16 @@ void CSLSSrt::libsrt_set_latency(int latency)
     m_sc.latency = latency;
 }
 
+void CSLSSrt::libsrt_set_passphrase(const char *passphrase)
+{
+    m_sc.passphrase = const_cast<char *>(passphrase);
+}
+
+void CSLSSrt::libsrt_set_pbkeylen(int pbkeylen)
+{
+    m_sc.pbkeylen = pbkeylen;
+}
+
 int CSLSSrt::libsrt_setup(int port)
 {
     struct addrinfo hints = { 0 }, *ai;
@@ -178,6 +188,38 @@ int CSLSSrt::libsrt_setup(int port)
         ret = libsrt_neterrno();
         freeaddrinfo(ai);
         return ret;
+    }
+
+    if (s->passphrase && strlen(s->passphrase) > 0) {
+        size_t passphrase_len = strlen(s->passphrase);
+        if (passphrase_len < 10 || passphrase_len > 79) {
+            sls_log(SLS_LOG_ERROR,
+                   "[%p]CSLSSrt::libsrt_setup, invalid passphrase length=%zu, expected 10-79.", this, passphrase_len);
+            srt_close(fd);
+            freeaddrinfo(ai);
+            return SLS_ERROR;
+        }
+        if (s->pbkeylen > 0) {
+            if (s->pbkeylen != 16 && s->pbkeylen != 24 && s->pbkeylen != 32) {
+                sls_log(SLS_LOG_ERROR,
+                       "[%p]CSLSSrt::libsrt_setup, invalid pbkeylen=%d, expected 16/24/32.", this, s->pbkeylen);
+                srt_close(fd);
+                freeaddrinfo(ai);
+                return SLS_ERROR;
+            }
+            if (srt_setsockopt(fd, 0, SRTO_PBKEYLEN, &s->pbkeylen, sizeof(s->pbkeylen)) < 0) {
+                ret = libsrt_neterrno();
+                srt_close(fd);
+                freeaddrinfo(ai);
+                return ret;
+            }
+        }
+        if (srt_setsockopt(fd, 0, SRTO_PASSPHRASE, s->passphrase, strlen(s->passphrase)) < 0) {
+            ret = libsrt_neterrno();
+            srt_close(fd);
+            freeaddrinfo(ai);
+            return ret;
+        }
     }
 
 /*
@@ -508,4 +550,3 @@ int CSLSSrt::libsrt_getpeeraddr(char * peer_name, int& port)
     }
     return ret;
 }
-

@@ -107,6 +107,8 @@ public :
     int  libsrt_write(const char *buf, int size);
 
     int  libsrt_socket_nonblock(int enable);
+    void libsrt_set_passphrase(const char *passphrase);
+    void libsrt_set_pbkeylen(int pbkeylen);
 
     int  libsrt_getsockopt(SRT_SOCKOPT optname, const char * optnamestr, void * optval, int * optlen);
     int  libsrt_setsockopt(SRT_SOCKOPT optname, const char * optnamestr, const void * optval, int optlen);

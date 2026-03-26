@@ -284,12 +284,21 @@ int CSLSListener::start()
     if (NULL == m_srt)
         m_srt = new CSLSSrt();
 
-    int latency = ((sls_conf_server_t*)m_conf)->latency;
+    sls_conf_server_t *conf_server = (sls_conf_server_t*)m_conf;
+    int latency = conf_server->latency;
     if (latency > 0) {
         m_srt->libsrt_set_latency(latency);
     }
+    if (strlen(conf_server->passphrase) > 0) {
+        if (conf_server->pbkeylen > 0) {
+            m_srt->libsrt_set_pbkeylen(conf_server->pbkeylen);
+        }
+        m_srt->libsrt_set_passphrase(conf_server->passphrase);
+    } else if (conf_server->pbkeylen > 0) {
+        sls_log(SLS_LOG_WARNING, "[%p]CSLSListener::start, pbkeylen configured without passphrase; ignoring pbkeylen.", this);
+    }
 
-    m_port = ((sls_conf_server_t*)m_conf)->listen;
+    m_port = conf_server->listen;
     ret = m_srt->libsrt_setup(m_port);
     if (SLS_OK != ret) {
         sls_log(SLS_LOG_ERROR, "[%p]CSLSListener::start, libsrt_setup failure.", this);
@@ -577,6 +586,5 @@ std::string   CSLSListener::get_stat_info()
 	}
 	return m_stat_info;
 }
-
 
 
